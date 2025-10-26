@@ -18,10 +18,8 @@ spec:
       containers:
         - name: quakewatch2
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: { { .Values.image.pullPolicy } }
           ports:
             - containerPort: 8000
-          {{- with .Values.resources }}
           resources:
-{{ toYaml . | indent 12 }}
-          {{- end }}
+            { { - toYaml .Values.resources | nindent 12 } }
