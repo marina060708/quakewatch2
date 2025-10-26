@@ -26,4 +26,3 @@ Create the service account name.
 {{ include "quakewatch2.fullname" . }}
 {{- end }}
 {{- end }}
-
