@@ -26,3 +26,13 @@ Create the service account name.
 {{ include "quakewatch2.fullname" . }}
 {{- end }}
 {{- end }}
+{{/*
+Common labels
+*/}}
+{{- define "quakewatch2.labels" -}}
+helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+app.kubernetes.io/name: {{ include "quakewatch2.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/version: {{ .Chart.AppVersion }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}

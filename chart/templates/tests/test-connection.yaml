@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: {{ include "quakewatch2.fullname" . }}
   labels:
-    {{- include "chart.labels" . | nindent 4 }}
+    {{- include "quakewatch2.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test
 spec:
