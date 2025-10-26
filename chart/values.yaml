@@ -22,7 +22,7 @@ resources:
 
 serviceAccount:
   create: true
-  name: ""
+  name: quakewatch2-sa
 
 autoscaling:
   enabled: true
