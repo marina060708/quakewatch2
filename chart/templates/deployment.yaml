@@ -14,13 +14,16 @@ spec:
       labels:
         app: {{ include "quakewatch2.name" . }}
     spec:
-      serviceAccountName: "{{ include "quakewatch2.serviceAccountName" . }}"
+      serviceAccountName: {{ include "quakewatch2.serviceAccountName" . | trim }}
       containers:
         - name: quakewatch2
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8000
+          {{- with .Values.resources }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+
 
