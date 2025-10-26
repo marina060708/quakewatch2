@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "chart.fullname" . }}:{{ .Values.service.port }}']
+      args: ['{{ include "quakewatch2.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never
