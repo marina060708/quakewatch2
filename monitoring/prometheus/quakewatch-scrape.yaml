@@ -2,9 +2,9 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: quakewatch2-monitor
-  namespace: monitoring  # Adjust if your Prometheus Operator is in another namespace
+  namespace: monitoring
   labels:
-    release: prometheus-stack  # Must match Prometheus's selector label
+    release: prometheus
 spec:
   selector:
     matchLabels:
