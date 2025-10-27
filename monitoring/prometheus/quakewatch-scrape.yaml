@@ -1,6 +1,19 @@
 prometheus:
   prometheusSpec:
-    additionalScrapeConfigs:
-      - job_name: 'quakewatch2'
-        static_configs:
-          - targets: ['quakewatch2.quakewatch2.svc.cluster.local:8000']
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorNamespaceSelector:
+      matchNames:
+        - quakewatch2  # ✅ Your app namespace
+
+additionalServiceMonitors:
+  - name: quakewatch2
+    selector:
+      matchLabels:
+        app: quakewatch2
+    namespaceSelector:
+      matchNames:
+        - quakewatch2
+    endpoints:
+      - port: http         # ✅ Must match the named port in your Service
+        path: /metrics     # ✅ Flask app must expose this
+        interval: 15s
