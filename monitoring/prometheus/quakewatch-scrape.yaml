@@ -20,3 +20,4 @@ additionalScrapeConfigs:
   - job_name: 'quakewatch2'
     static_configs:
       - targets: ['quakewatch2-quakewatch2.quakewatch2.svc.cluster.local:8000']
+

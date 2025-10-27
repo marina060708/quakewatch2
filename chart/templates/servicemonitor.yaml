@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: quakewatch2-monitor
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: quakewatch2
+      app.kubernetes.io/instance: quakewatch2
+  namespaceSelector:
+    matchNames:
+      - quakewatch2
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
