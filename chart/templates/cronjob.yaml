@@ -12,5 +12,5 @@ spec:
             - name: quakewatch2
               image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
               imagePullPolicy: {{ .Values.image.pullPolicy }}
-              command: ["python", "your_script.py"]
+              command: ["python", "app.py"]
           restartPolicy: OnFailure
