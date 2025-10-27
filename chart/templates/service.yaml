@@ -1,15 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "quakewatch2.fullname" . }}
+  name: quakewatch2-quakewatch2
+  namespace: quakewatch2
   labels:
-    app.kubernetes.io/name: {{ include "quakewatch2.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: quakewatch2
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - name: http
-      port: {{ .Values.service.port }}
-      targetPort: 8000
   selector:
-    app: {{ include "quakewatch2.name" . }}
+    app: quakewatch2
+  ports:
+    - name: http        # <-- This must match the port name in the ServiceMonitor
+      port: 80
+      targetPort: 8000
