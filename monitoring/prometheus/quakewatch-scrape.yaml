@@ -4,15 +4,19 @@ metadata:
   name: quakewatch2-monitor
   namespace: monitoring
   labels:
-    release: prometheus
+    release: prometheus  # This must match your Prometheus Helm release name
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: quakewatch2
+      app: quakewatch2  # Must match the labels on the quakewatch2 Service
   namespaceSelector:
     matchNames:
       - quakewatch2
   endpoints:
-    - port: http
+    - port: http        # Name must match the named port in the Service
       path: /metrics
       interval: 15s
+additionalScrapeConfigs:
+  - job_name: 'quakewatch2'
+    static_configs:
+      - targets: ['quakewatch2-quakewatch2.quakewatch2.svc.cluster.local:8000']

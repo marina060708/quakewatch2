@@ -4,11 +4,11 @@ metadata:
   name: quakewatch2-quakewatch2
   namespace: quakewatch2
   labels:
-    app.kubernetes.io/name: quakewatch2
+    app: quakewatch2
 spec:
   selector:
     app: quakewatch2
   ports:
-    - name: http        # <-- This must match the port name in the ServiceMonitor
+    - name: http                # 👈 this must match the endpoint's "port"
       port: 80
       targetPort: 8000
