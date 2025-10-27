@@ -1,0 +1,154 @@
+---
+# Source: quakewatch2/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: quakewatch2-sa
+---
+# Source: quakewatch2/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: quakewatch2-secret
+type: Opaque
+stringData:
+  DB_PASSWORD: "supersecret"
+---
+# Source: quakewatch2/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quakewatch2-config
+data:
+  config.json: |
+    {
+      "env": "prod"
+    }
+---
+# Source: quakewatch2/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: quakewatch2-quakewatch2
+  namespace: quakewatch2
+  labels:
+    app: quakewatch2
+spec:
+  selector:
+    app: quakewatch2
+  ports:
+    - name: http                # 👈 this must match the endpoint's "port"
+      port: 80
+      targetPort: 8000
+---
+# Source: quakewatch2/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quakewatch2
+  labels:
+    app: quakewatch2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quakewatch2
+  template:
+    metadata:
+      labels:
+        app: quakewatch2
+    spec:
+      serviceAccountName: quakewatch2-sa
+      containers:
+        - name: quakewatch2
+          image: "quakewatch2:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+---
+# Source: quakewatch2/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: quakewatch2-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: quakewatch2
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+---
+# Source: quakewatch2/templates/cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: quakewatch2-cron
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: quakewatch2
+              image: "quakewatch2:latest"
+              imagePullPolicy: IfNotPresent
+              command: ["python", "app.py"]
+          restartPolicy: OnFailure
+---
+# Source: quakewatch2/templates/servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: quakewatch2-monitor
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: quakewatch2
+      app.kubernetes.io/instance: quakewatch2
+  namespaceSelector:
+    matchNames:
+      - quakewatch2
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+---
+# Source: quakewatch2/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: quakewatch2
+  labels:
+    helm.sh/chart: quakewatch2-0.1.0
+    app.kubernetes.io/name: quakewatch2
+    app.kubernetes.io/instance: quakewatch2
+    app.kubernetes.io/version: 1.0.0
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['quakewatch2:80']
+  restartPolicy: Never

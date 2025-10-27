@@ -14,3 +14,4 @@ spec:
               imagePullPolicy: {{ .Values.image.pullPolicy }}
               command: ["python", "app.py"]
           restartPolicy: OnFailure
+
