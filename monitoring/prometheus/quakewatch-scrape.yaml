@@ -1,19 +1,18 @@
-prometheus:
-  prometheusSpec:
-    serviceMonitorSelectorNilUsesHelmValues: false
-    serviceMonitorNamespaceSelector:
-      matchNames:
-        - quakewatch2  # ✅ Your app namespace
-
-additionalServiceMonitors:
-  - name: quakewatch2
-    selector:
-      matchLabels:
-        app: quakewatch2
-    namespaceSelector:
-      matchNames:
-        - quakewatch2
-    endpoints:
-      - port: http         # ✅ Must match the named port in your Service
-        path: /metrics     # ✅ Flask app must expose this
-        interval: 15s
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: quakewatch2-monitor
+  namespace: monitoring  # Adjust if your Prometheus Operator is in another namespace
+  labels:
+    release: prometheus-stack  # Must match Prometheus's selector label
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: quakewatch2
+  namespaceSelector:
+    matchNames:
+      - quakewatch2
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
