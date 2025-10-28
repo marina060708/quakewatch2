@@ -23,15 +23,15 @@ quakewatch2/
 🚀 GitOps with ArgoCD
 Prerequisites
 
-Kubernetes cluster (e.g., Minikube)
+Kubernetes cluster (Minikube)
 
 ArgoCD installed in namespace argocd
 
 ArgoCD CLI (argocd)
 
-This repo is pushed to a Git provider (GitHub, GitLab, etc.)
+This repo is pushed to a Git provider (GitHub)
 
-Install ArgoCD (Optional)
+Install ArgoCD
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
