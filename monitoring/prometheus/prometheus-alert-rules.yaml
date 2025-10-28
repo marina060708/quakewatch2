@@ -1,0 +1,76 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: quakewatch2-alert-rules
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  groups:
+  - name: quakewatch2.rules
+    rules:
+
+    # Alert for high HTTP 5xx error rates
+    - alert: HighErrorRate
+      expr: |
+        sum(rate(http_requests_total{status=~"5.."}[5m])) 
+        / sum(rate(http_requests_total[5m])) > 0.05
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High error rate detected"
+        description: "More than 5% of HTTP requests are returning 5xx status codes."
+
+    # Alert for pods in CrashLoopBackOff
+    - alert: PodCrashLoopBackOff
+      expr: |
+        kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"} > 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Pod in CrashLoopBackOff"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is in CrashLoopBackOff state."
+
+    # Alert for low node memory
+    - alert: NodeMemoryLow
+      expr: |
+        (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) < 0.10
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Node low on memory"
+        description: "Available memory on node {{ $labels.instance }} is below 10%."
+
+    # Alert for Disk space usage > 90%
+    - alert: NodeDiskAlmostFull
+      expr: |
+        (node_filesystem_avail_bytes{fstype!="tmpfs", mountpoint="/"} / node_filesystem_size_bytes{fstype!="tmpfs", mountpoint="/"}) < 0.10
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Node almost out of disk space"
+        description: "Disk space on {{ $labels.instance }} is more than 90% full."
+
+    # Cluster health check
+    - alert: KubernetesAPIDown
+      expr: up{job="kubernetes-apiservers"} == 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Kubernetes API server down"
+        description: "The Kubernetes API server is unreachable."
+
+    - alert: ManyKubeletDown
+      expr: |
+        count(up{job="kubelet"} == 0) > 1
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Multiple kubelets are down"
+        description: "More than one kubelet endpoint is down."
